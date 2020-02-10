@@ -1,2 +1,2 @@
-# as3935_ESP8266
-AS3935/ESP8266 Lightning sensor to Domoticz
+Concept code to connect an AS3935 lightning sensor to an ESP8266 to send local lightning info direct to Domoticz.
+
