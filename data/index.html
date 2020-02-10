@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="Chart.css">
+    </link>
+    <script src="Chart.js"></script>
+
+    <style>
+        .chart {
+            width: 100%;
+            max-height: 400px;
+
+        }
+
+        .back {
+            width: 100%;
+            height: 200px;
+
+        }
+
+        body {
+            margin: 0;
+
+        }
+
+        .container {
+            position: relative;
+            color: white;
+        }
+
+        .collapsible {
+            margin-top: 10px;
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active,
+        .collapsible:hover {
+            background-color: #555;
+        }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+
+        input {
+            float: right;
+        }
+
+        h1 {
+            position: absolute;
+            top: 30%;
+            left: 40%;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            letter-spacing: 1px;
+            color: #f7f4eb;
+            font-family: Impact, Charcoal, sans-serif;
+            transform: translate(-20%, -40%);
+        }
+    </style>
+</head>
+
+<body onload="loadData()">
+    <div class="container">
+        <img class="back" src="back.jpg">
+        <h1>Lightning detector</h1>
+
+    </div>
+
+    <canvas class="chart" id="line-chart"></canvas>
+
+    <button type="button" class="collapsible">Settings</button>
+    <div class="content">
+        <br>
+        <label for="ssid">SSID</label>
+        <input type="text" id="ssid">
+        <br><br>
+        <label for="password">PASSWORD</label>
+        <input type="password" id="password">
+        <br><br>
+        <label for="ip">SERVER IP</label>
+        <input type="text" id="ip">
+        <br><br>
+        <button id="save" onclick="onSave()" type="button">SAVE</button>
+        <br><br>
+
+    </div>
+
+
+
+    <script>
+
+
+        var ssid = document.getElementById("ssid");
+        var pass = document.getElementById("password");
+        var ip = document.getElementById("ip");
+
+        var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var today = new Date();
+        var lastdays = ["", "", "", "", "", "", ""];
+
+        var day = new Date();
+        for (i = 0; i < 7; i++) {
+            var pastDate = today.getDate() - i;
+            day.setDate(pastDate);
+            lastdays[i] = day.getDate() + " " + month[day.getMonth()]
+        }
+
+        function onSave(){
+
+            var ssid_ = ssid.value;
+            var pass_ = pass.value;
+            var ip_ = ip.value;
+
+            if(ssid_ == ""){
+                alert("SSID can't be empty!");
+                return;
+            }
+            if(pass_ == ""){
+                alert("Password can't be empty!");
+                return;
+            }
+            if(ip_ == ""){
+                alert("Server IP can't be empty!");
+                return;
+            }
+
+            var savedata = "/save?ssid=";
+            savedata += ssid_;
+            savedata += "&pass=";
+            savedata += pass_;
+            savedata += "&ip=";
+            savedata += ip_;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                     
+                    alert("Save success Device will restart! Please refresh the browser");
+
+                }
+            };
+            xhttp.open("GET", savedata, true);
+            xhttp.send();
+               
+        }
+
+
+        function loadData() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    var response = JSON.parse(this.responseText);
+                    loadchart(response["chart"]);
+                    ssid.value = response["ssid"];
+                    pass.value = response["pass"];
+                    ip.value = response["ip"];
+
+                }
+            };
+            xhttp.open("GET", "/get", true);
+            xhttp.send();
+        }
+
+
+        function loadchart(Data) {
+            new Chart(document.getElementById("line-chart"), {
+                type: 'line',
+                data: {
+                    labels: lastdays.reverse(),
+                    datasets: [{
+                        data: Data,
+                        label: "Lightnings",
+                        borderColor: "#3e95cd",
+                        fill: false
+                    }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Lightning Strikes in last 7 days'
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+
+        }
+
+
+
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+</body>
