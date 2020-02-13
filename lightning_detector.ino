@@ -224,7 +224,7 @@ void setup(void) {
     deserializeJson(doc, defult);
 
     DBG_OUTPUT_PORT.print("Setting AP (Access Point)…");
-    WiFi.softAP("esp8266w");
+    WiFi.softAP("lightningsensor","Welkom1234);
 
     IPAddress IP = WiFi.softAPIP();
     DBG_OUTPUT_PORT.print("AP IP address: ");
